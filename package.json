@@ -1,0 +1,19 @@
+{
+    "name": "node-red-contrib-brp069c4",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Bart Janisse",
+    "license": "MIT",
+    "dependencies": {
+        "daikin-controller-cloud": "^0.1.1"
+      },
+    "node-red" : {
+          "nodes": {
+              "daikin_brp069c4": "daikin_brp069c4.js"
+          }
+      }
+  }
