@@ -106,7 +106,7 @@ module.exports = function(RED){
         }
 
         async function setDeviceData(device, managementPoint, dataPoint, dataPointPath, value){
-            console.log(`Data: ${managementPoint}.${dataPoint}.${dataPointPath}.${value}`);          
+            //console.log(`Data: ${managementPoint}.${dataPoint}.${dataPointPath}.${value}`);          
             try {
                 if(dataPoint == 'operationMode') {
                     await device.setData('climateControl', 'onOffMode', 'on');
