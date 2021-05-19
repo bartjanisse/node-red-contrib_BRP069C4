@@ -86,6 +86,17 @@ module.exports = function(RED){
                     
                     
                     setDeviceData(device, payload.managementPoint, payload.dataPoint, payload.dataPointPath, payload.value);
+
+                    updateDevices();
+                    if (devices) {
+                        msg.payload = devices;
+                        //console.log(devices);
+                        node.send(msg);
+                        setNodeStatus({fill: "green", shape: "dot", text: "updated"});
+                    } else {
+                        node.send(null);
+                        setNodeStatus({fill: "gray", shape: "dot", text: "failed to get devices"});
+                    }
                     break;
                 default :
                     send(null);
