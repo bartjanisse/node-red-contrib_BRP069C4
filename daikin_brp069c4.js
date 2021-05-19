@@ -106,8 +106,11 @@ module.exports = function(RED){
         }
 
         async function setDeviceData(device, managementPoint, dataPoint, dataPointPath, value){
-            //console.log(`Data: ${managementPoint}.${dataPoint}.${dataPointPath}.${value}`);          
+            console.log(`Data: ${managementPoint}.${dataPoint}.${dataPointPath}.${value}`);          
             try {
+                if(dataPoint == 'operationMode') {
+                    await device.setData('climateControl', 'onOffMode', 'on');
+                }
                 await device.setData(managementPoint, dataPoint, dataPointPath, value);
                 await device.updateData();
                 setNodeStatus({fill: "green", shape: "dot", text: "Set data succesfully to " + value});

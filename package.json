@@ -1,6 +1,6 @@
 {
     "name": "node-red-contrib-brp069c4",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "description": "Experimental node-red daikin cloud controller",
     "main": "daikin_brp069c4.js",
     "repository": {
