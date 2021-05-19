@@ -87,16 +87,16 @@ module.exports = function(RED){
                     
                     setDeviceData(device, payload.managementPoint, payload.dataPoint, payload.dataPointPath, payload.value);
 
-                    updateDevices();
-                    if (devices) {
-                        msg.payload = devices;
-                        //console.log(devices);
-                        node.send(msg);
-                        setNodeStatus({fill: "green", shape: "dot", text: "updated"});
-                    } else {
-                        node.send(null);
-                        setNodeStatus({fill: "gray", shape: "dot", text: "failed to get devices"});
-                    }
+                    //updateDevices();
+                    // if (devices) {
+                    //     msg.payload = devices;
+                    //     //console.log(devices);
+                    //     node.send(msg);
+                    //     setNodeStatus({fill: "green", shape: "dot", text: "updated"});
+                    // } else {
+                    //     node.send(null);
+                    //     setNodeStatus({fill: "gray", shape: "dot", text: "failed to get devices"});
+                    // }
                     break;
                 default :
                     send(null);
@@ -117,6 +117,14 @@ module.exports = function(RED){
         }
 
         async function setDeviceData(device, managementPoint, dataPoint, dataPointPath, value){
+
+            // const ssid = device.getData('gateway', 'ssid').value;
+            // const index = devices.findIndex(item => item.getData('gateway', 'ssid').value === ssid);
+            
+            // if (index !== 0) {
+            //     devices[index] = device;
+            // }
+
             //console.log(`Data: ${managementPoint}.${dataPoint}.${dataPointPath}.${value}`);          
             try {
                 if(dataPoint == 'operationMode') {
