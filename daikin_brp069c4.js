@@ -28,6 +28,9 @@ module.exports = function(RED){
         let daikinCloud;     
         let devices;
 
+        //console.log(JSON.parse(config.token));
+        //config.token = "hallo";
+
         node.init = async function() {                
             let tokenSet;
             setNodeStatus({fill: "gray", shape: "dot", text: "Connecting..."});
@@ -82,6 +85,8 @@ module.exports = function(RED){
                     //updateDevices();
                     const device = getDeviceBySsid(payload.ssid);
                     
+                    //if (payload.dataPoint == "temperatureControl"}
+
                     //console.log(device);
                     
                     
