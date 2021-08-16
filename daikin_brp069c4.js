@@ -59,6 +59,7 @@ module.exports = function (RED) {
                 tokenfileNotFound = false;
             } catch (error) {
                 setNodeStatus({ fill: "red", shape: "dot", text: error });
+                node.warn(error);
             }
         };
 
@@ -123,6 +124,7 @@ module.exports = function (RED) {
                 setNodeStatus({ fill: "green", shape: "dot", text: "Set data succesfully to " + value });
             } catch (error) {
                 setNodeStatus({ fill: "red", shape: "dot", text: error });
+                node.warn(error);
             }
         }
 
@@ -131,6 +133,7 @@ module.exports = function (RED) {
                 devices = await daikinCloud.getCloudDevices();
             } catch (error) {
                 setNodeStatus({ fill: "red", shape: "dot", text: error });
+                node.warn(error);
             }
         }
         function setNodeStatus({ fill, shape, text }) {
