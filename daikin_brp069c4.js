@@ -36,11 +36,16 @@ module.exports = function (RED) {
                 let tokenSet;
                 setNodeStatus({ fill: "gray", shape: "dot", text: "Connecting..." });
                 // Load Tokens if they already exist on disk
+                const username = config.username;
+                const password = config.password;
+
                 const tokenFile = path.join(__dirname, 'tokenset.json');
                 if (fs.existsSync(tokenFile)) {
                     tokenSet = JSON.parse(fs.readFileSync(tokenFile).toString());
                     node.debug('tokenset is read');
                 } else {
+                    const resultTokenSet = await daikinCloud.login(username, password);
+
                     setNodeStatus({ fill: "red", shape: "dot", text: "tokenset.json is not found" });
                     exit;
                 }
