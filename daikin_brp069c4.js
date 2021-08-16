@@ -19,131 +19,131 @@ const options = {
 
 //node.debug(" ", func, JSON.stringify(funcArgs.slice(0,-1)).slice(1,-1));
 
-module.exports = function(RED){
+module.exports = function (RED) {
 
     function daikin_brp069c4Node(config) {
-        RED.nodes.createNode(this,config);
+        RED.nodes.createNode(this, config);
         let node = this;
 
-        let daikinCloud;     
+        let daikinCloud;
         let devices;
 
         //console.log(JSON.parse(config.token));
         //config.token = "hallo";
 
-        node.init = async function() {                
-          try { 
-	    let tokenSet;
-            setNodeStatus({fill: "gray", shape: "dot", text: "Connecting..."});
-            // Load Tokens if they already exist on disk
-            const tokenFile = path.join(__dirname, 'tokenset.json');
-            if (fs.existsSync(tokenFile)) {
-                tokenSet = JSON.parse(fs.readFileSync(tokenFile).toString());
-                node.debug('tokenset is read');
-            } else {
-                setNodeStatus({fill: "red", shape: "dot", text: "tokenset.json is not found"});
-                exit;
+        node.init = async function () {
+            try {
+                let tokenSet;
+                setNodeStatus({ fill: "gray", shape: "dot", text: "Connecting..." });
+                // Load Tokens if they already exist on disk
+                const tokenFile = path.join(__dirname, 'tokenset.json');
+                if (fs.existsSync(tokenFile)) {
+                    tokenSet = JSON.parse(fs.readFileSync(tokenFile).toString());
+                    node.debug('tokenset is read');
+                } else {
+                    setNodeStatus({ fill: "red", shape: "dot", text: "tokenset.json is not found" });
+                    exit;
+                }
+
+                daikinCloud = new DaikinCloud(tokenSet, options);
+
+                // Event that will be triggered on new or updated tokens, save into file
+                daikinCloud.on('token_update', tokenSet => {
+                    setNodeStatus({ fill: "blue", shape: "dot", text: "UPDATED tokens" });
+                    fs.writeFileSync(tokenFile, JSON.stringify(tokenSet));
+                });
+
+                //const daikinDeviceDetails = await daikinCloud.getCloudDeviceDetails();
+                updateDevices();
+                setNodeStatus({ fill: "blue", shape: "dot", text: "Waiting..." });
+                tokenfileNotFound = false;
+            } catch (error) {
+                setNodeStatus({ fill: "red", shape: "dot", text: error });
             }
-
-            daikinCloud = new DaikinCloud(tokenSet, options);
-
-            // Event that will be triggered on new or updated tokens, save into file
-            daikinCloud.on('token_update', tokenSet => {
-                setNodeStatus({fill: "blue", shape: "dot", text: "UPDATED tokens"});
-                fs.writeFileSync(tokenFile, JSON.stringify(tokenSet));
-            });
-
-            //const daikinDeviceDetails = await daikinCloud.getCloudDeviceDetails();
-            updateDevices();
-            setNodeStatus({fill: "blue", shape: "dot", text: "Waiting..."});
-            tokenfileNotFound = false;
-	  } catch (error) {
-            setNodeStatus({fill: "red", shape: "dot", text: error});
-  	  }
         };
 
-        node.on('input', function(msg, send, done) {
-            send = send || function() { node.send.apply(node,arguments) }
-            
+        node.on('input', function (msg, send, done) {
+            send = send || function () { node.send.apply(node, arguments) }
+
             const payload = msg.payload;
             const topic = msg.topic;
-            
+
             //console.log(`Payload: ${payload}, topic: ${topic}`);
 
-            switch(topic) {
-                case 'get': 
-                    updateDevices();    
+            switch (topic) {
+                case 'get':
+                    updateDevices();
                     //sendAllDevices(msg);
                     if (devices) {
                         msg.payload = devices;
                         //console.log(devices);
                         node.send(msg);
-                        setNodeStatus({fill: "green", shape: "dot", text: "updated"});
+                        setNodeStatus({ fill: "green", shape: "dot", text: "updated" });
                     } else {
                         node.send(null);
-                        setNodeStatus({fill: "gray", shape: "dot", text: "failed to get devices"});
+                        setNodeStatus({ fill: "gray", shape: "dot", text: "failed to get devices" });
                     }
                     break;
                 case 'set':
                     const device = getDeviceBySsid(payload.ssid);
                     setDeviceData(device, payload.managementPoint, payload.dataPoint, payload.dataPointPath, payload.value);
                     break;
-                default :
+                default:
                     send(null);
-            };           
-            
+            };
+
             if (done) {
                 done();
             }
         });
 
-        function getDeviceBySsid(ssid){
+        function getDeviceBySsid(ssid) {
 
             const result = devices.find(device => {
                 return device.getData('gateway', 'ssid').value === ssid;
             });
 
-            return result? result : null; // or undefined
+            return result ? result : null; // or undefined
         }
 
-        async function setDeviceData(device, managementPoint, dataPoint, dataPointPath, value){         
+        async function setDeviceData(device, managementPoint, dataPoint, dataPointPath, value) {
             try {
-                if(dataPoint == 'operationMode') {
+                if (dataPoint == 'operationMode') {
                     await device.setData('climateControl', 'onOffMode', 'on');
                 }
-                if(dataPoint === 'temperatureControl') { 
+                if (dataPoint === 'temperatureControl') {
                     // For now always set all temperatures equal
                     await device.setData(managementPoint, dataPoint, '/operationModes/heating/setpoints/roomTemperature', value);
                     await device.setData(managementPoint, dataPoint, '/operationModes/cooling/setpoints/roomTemperature', value);
                     await device.setData(managementPoint, dataPoint, '/operationModes/auto/setpoints/roomTemperature', value);
                 } else {
                     await device.setData(managementPoint, dataPoint, dataPointPath, value);
-                }               
+                }
                 await device.updateData();
-                setNodeStatus({fill: "green", shape: "dot", text: "Set data succesfully to " + value});
+                setNodeStatus({ fill: "green", shape: "dot", text: "Set data succesfully to " + value });
             } catch (error) {
-                setNodeStatus({fill: "red", shape: "dot", text: error});
+                setNodeStatus({ fill: "red", shape: "dot", text: error });
             }
         }
 
-        async function updateDevices(){
-	    try {
-            	devices = await daikinCloud.getCloudDevices();
-	    } catch (error) {
-		setNodeStatus({fill: "red", shape: "dot", text: error});
-        }
+        async function updateDevices() {
+            try {
+                devices = await daikinCloud.getCloudDevices();
+            } catch (error) {
+                setNodeStatus({ fill: "red", shape: "dot", text: error });
+            }
 
-        function setNodeStatus ({ fill, shape, text }) {
-			var dDate = new Date();
-			node.status({ fill: fill, shape: shape, text: text + " (" + dDate.toLocaleTimeString() + ")" })
-		}
+            function setNodeStatus({ fill, shape, text }) {
+                var dDate = new Date();
+                node.status({ fill: fill, shape: shape, text: text + " (" + dDate.toLocaleTimeString() + ")" })
+            }
 
-        node.init();
-    };
+            node.init();
+        };
 
-    RED.nodes.registerType("daikin_brp069c4",daikin_brp069c4Node);
+        RED.nodes.registerType("daikin_brp069c4", daikin_brp069c4Node);
 
-    // RED.events.on("nodes-started", () => {
-    //     // Start after all nodes are started.
-    // });
-}
+        // RED.events.on("nodes-started", () => {
+        //     // Start after all nodes are started.
+        // });
+    }
