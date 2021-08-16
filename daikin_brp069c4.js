@@ -132,18 +132,18 @@ module.exports = function (RED) {
             } catch (error) {
                 setNodeStatus({ fill: "red", shape: "dot", text: error });
             }
+        }
+        function setNodeStatus({ fill, shape, text }) {
+            var dDate = new Date();
+            node.status({ fill: fill, shape: shape, text: text + " (" + dDate.toLocaleTimeString() + ")" })
+        }
 
-            function setNodeStatus({ fill, shape, text }) {
-                var dDate = new Date();
-                node.status({ fill: fill, shape: shape, text: text + " (" + dDate.toLocaleTimeString() + ")" })
-            }
+        node.init();
+    };
 
-            node.init();
-        };
+    RED.nodes.registerType("daikin_brp069c4", daikin_brp069c4Node);
 
-        RED.nodes.registerType("daikin_brp069c4", daikin_brp069c4Node);
-
-        // RED.events.on("nodes-started", () => {
-        //     // Start after all nodes are started.
-        // });
-    }
+    // RED.events.on("nodes-started", () => {
+    //     // Start after all nodes are started.
+    // });
+}
