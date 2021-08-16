@@ -43,14 +43,15 @@ module.exports = function (RED) {
                 if (fs.existsSync(tokenFile)) {
                     tokenSet = JSON.parse(fs.readFileSync(tokenFile).toString());
                     node.debug('tokenset is read');
-                } else {
-                    const resultTokenSet = await daikinCloud.login(username, password);
+                    daikinCloud = new DaikinCloud(tokenSet, options);
 
+                } else {
+                    daikinCloud = new DaikinCloud(tokenSet, options);
+                    const resultTokenSet = await daikinCloud.login(username, password);
                     setNodeStatus({ fill: "red", shape: "dot", text: "tokenset.json is not found" });
                     exit;
                 }
 
-                daikinCloud = new DaikinCloud(tokenSet, options);
 
                 // Event that will be triggered on new or updated tokens, save into file
                 daikinCloud.on('token_update', tokenSet => {
