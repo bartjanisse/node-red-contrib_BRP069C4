@@ -32,7 +32,8 @@ module.exports = function(RED){
         //config.token = "hallo";
 
         node.init = async function() {                
-            let tokenSet;
+          try { 
+	    let tokenSet;
             setNodeStatus({fill: "gray", shape: "dot", text: "Connecting..."});
             // Load Tokens if they already exist on disk
             const tokenFile = path.join(__dirname, 'tokenset.json');
@@ -56,6 +57,9 @@ module.exports = function(RED){
             updateDevices();
             setNodeStatus({fill: "blue", shape: "dot", text: "Waiting..."});
             tokenfileNotFound = false;
+	  } catch (error) {
+            setNodeStatus({fill: "red", shape: "dot", text: error});
+  	  }
         };
 
         node.on('input', function(msg, send, done) {
@@ -123,7 +127,10 @@ module.exports = function(RED){
         }
 
         async function updateDevices(){
-            devices = await daikinCloud.getCloudDevices();
+	    try {
+            	devices = await daikinCloud.getCloudDevices();
+	    } catch (error) {
+		setNodeStatus({fill: "red", shape: "dot", text: error});
         }
 
         function setNodeStatus ({ fill, shape, text }) {
